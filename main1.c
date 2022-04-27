@@ -99,7 +99,6 @@ int main()
  
     // wait for the completion of thread 2
     pthread_join(tid2, NULL);
-
 	enQ(q, 10);
 	enQ(q, 20);
 	deQ(q);
@@ -110,5 +109,6 @@ int main()
 	deQ(q);
 	printf("Queue Front : %d \n", q->front->key);
 	printf("Queue Rear : %d\n", q->rear->key);
+    destoryQ(q);
 	return 0;
 }
