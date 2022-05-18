@@ -2,7 +2,7 @@
 CXX=gcc
 CPP=g++
 
-all: guard #main1
+all: singleton #guard main1
 main1: main1.o 
 	$(CXX) main1.o -o main1 -lpthread
 main1.o: main1.c
