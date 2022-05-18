@@ -23,6 +23,22 @@ typedef struct Queue {
 	QNode *front, *rear;
 }Queue, *pQueue;
 
+typedef struct active_object
+{
+	pQueue q;
+	void(*startFunc)();
+	void(*endFunc)();
+}active_object, *pactive_object;
+
+active_object newAo(pQueue q, void(*func1)(), void(*func2)()){
+	active_object a;
+	a.q = q;
+	a.startFunc = func1;
+	a.endFunc = func2;
+	return a;
+}
+
+
 // A utility function to create a new linked list node.
 pQNode newNode(void* k)
 {
@@ -85,30 +101,39 @@ void deQ(pQueue q)
 	free(temp);
     pthread_mutex_unlock(&lock);
 }
-
+void fun1(int a)
+{
+    printf("Value of a is %d\n", a);
+}
+void fun2(int a)
+{
+    printf("Value of b is %d\n", a);
+}
 // Driver Program to test anove functions
 int main()
 {
 	pQueue q = createQ();
-    pthread_t tid1, tid2;
-    int x = 5;
-    void * p[2] = {q, &x};
-    pthread_create(&tid1, NULL, deQ, q);
-    sleep(5);
-    pthread_create(&tid2, NULL, enQ, p);
- 
-    // wait for the completion of thread 2
-    pthread_join(tid2, NULL);
-	enQ(q, 10);
-	enQ(q, 20);
-	deQ(q);
-	deQ(q);
-	enQ(q, 30);
-	enQ(q, 40);
-	enQ(q, 50);
-	deQ(q);
-	printf("Queue Front : %d \n", q->front->key);
-	printf("Queue Rear : %d\n", q->rear->key);
-    destoryQ(q);
+	active_object a = newAo(q, fun1, fun2); 
+	a.startFunc(3);
+	a.endFunc(4);
+    // pthread_t tid1, tid2;
+    // int x = 5;
+    // void * p[2] = {q, &x};
+    // pthread_create(&tid1, NULL, deQ, q);
+    // sleep(5);
+    // pthread_create(&tid2, NULL, enQ, p);
+    // // wait for the completion of thread 2
+    // pthread_join(tid2, NULL);
+	// enQ(q, 10);
+	// enQ(q, 20);
+	// deQ(q);
+	// deQ(q);
+	// enQ(q, 30);
+	// enQ(q, 40);
+	// enQ(q, 50);
+	// deQ(q);
+	// printf("Queue Front : %d \n", q->front->key);
+	// printf("Queue Rear : %d\n", q->rear->key);
+    // destoryQ(q);
 	return 0;
 }
