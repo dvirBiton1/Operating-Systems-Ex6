@@ -1,5 +1,0 @@
-Waiting on condition variable cond1
-Signaling condition variable cond1
-Signaling condition variable cond1
-Queue Front : 40 
-Queue Rear : 50

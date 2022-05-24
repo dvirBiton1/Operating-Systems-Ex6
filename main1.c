@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-// ************** part 1 *******************
 // Declaration of thread condition variable
 pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
 // declaring mutex
@@ -88,16 +87,16 @@ void destoryQ(struct Queue *q) {
     }
     free(q);
 }
-// ************** part 2 *******************
+
 typedef struct active_object {
     struct Queue *q;
 
-    void (*q_fun_ptr)();
+    void (*q_fun_ptr)(void*);
 
-    void (*f_fun_ptr)();
+    void (*f_fun_ptr)(void*);
 } active_object;
 
-active_object newAO(struct Queue *q, void (*q_fun_ptr)(), void (*f_fun_ptr)()) {
+active_object newAO(struct Queue *q, void (*q_fun_ptr)(void*), void (*f_fun_ptr)(void*)) {
     active_object active_obj;
     active_obj.f_fun_ptr = f_fun_ptr;
     active_obj.q_fun_ptr = q_fun_ptr;
@@ -111,7 +110,7 @@ active_object newAO(struct Queue *q, void (*q_fun_ptr)(), void (*f_fun_ptr)()) {
     return active_obj;
 }
 
-void destroyAO(active_object obj){
+void destroyAO(active_object obj,){
     destoryQ(obj.q);
     pthread_cancel(obj.q_fun_ptr);
     pthread_cancel(obj.f_fun_ptr);
@@ -125,7 +124,6 @@ void fun1() {
 void fun2() {
     printf("Ciiiiii!\n");
 }
-// ************** part 3 *******************
 
 void ao1(char *str){
     int len = strlen(str);

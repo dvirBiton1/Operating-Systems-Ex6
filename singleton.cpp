@@ -44,10 +44,21 @@ void Singleton<T>::Destroy() {
 }
 
 int main() {
-    FILE *fptr; 
-    Singleton<FILE*>* s = Singleton<FILE*>::Instance(fptr);
+//    new Singleton(); // Won't work
+    FILE *fptr;
+//    cout << inputFile.fileDesc << endl;//made up call
+    Singleton<FILE*>* s = Singleton<FILE*>::Instance(fptr); // Ok
     Singleton<FILE*>* r = Singleton<FILE*>::Instance(fptr);
+//
+//    /* The addresses will be the same. */
+//    std::cout << s << std::endl;
+//    std::cout << r << std::endl;
+//    pthread_t t1;
+//    pthread_t t2;
+//    Singleton * s = pthread_create(&t1, NULL, Singleton::Instance, NULL);
+//    Singleton * r = pthread_create(&t2, NULL, Singleton::Instance, NULL);
+//    pthread_join(t1, NULL);
+//    pthread_join(t2, NULL);
     std::cout << s << std::endl;
     std::cout << r << std::endl;
-    std::cout << "the ptr are same and because that singelton works!" << std::endl;
 }

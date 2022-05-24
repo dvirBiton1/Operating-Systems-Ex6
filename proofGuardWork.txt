@@ -1,6 +1,0 @@
-guard init
-10
-guard finish
-guard init
-12
-guard finish
