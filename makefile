@@ -2,7 +2,7 @@
 CXX=gcc
 CPP=g++
 
-all:  pollServer clientReactor #reactor #  #main1 server client #guard singleton
+all:  pollServer clientReactor #main1 #  server client #guard singleton
 main1: main1.o
 	$(CXX) main1.o -o main1 -lpthread
 main1.o: main1.c
@@ -16,7 +16,7 @@ singleton: singleton.o
 singleton.o: singleton.cpp
 	$(CPP) -c singleton.cpp
 pollServer: pollServer.o 
-	$(CPP) pollServer.cpp reactor.cpp -o pollserver -pthread -lpthread 
+	$(CPP) pollServer.cpp reactor.cpp -o pollServer -pthread -lpthread 
 pollServer.o: pollServer.cpp
 	$(CPP) -c pollServer.cpp
 clientReactor: clientReactor.o

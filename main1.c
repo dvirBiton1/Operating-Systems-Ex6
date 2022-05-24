@@ -1,6 +1,6 @@
-//Credit:
-// https://www.geeksforgeeks.org/queue-linked-list-implementation/
-//https://www.geeksforgeeks.org/condition-wait-signal-multi-threading/
+// Credit:
+//  https://www.geeksforgeeks.org/queue-linked-list-implementation/
+// https://www.geeksforgeeks.org/condition-wait-signal-multi-threading/
 
 // A C program to demonstrate linked list based implementation of queue
 #include <stdio.h>
@@ -8,47 +8,53 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 // Declaration of thread condition variable
 pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
 // declaring mutex
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
-
 // A linked list (LL) node to store a queue entry
-struct QNode {
+struct QNode
+{
     void *key;
     struct QNode *next;
 };
 
 // The queue, front stores the front node of LL and rear stores the
 // last node of LL
-struct Queue {
+struct Queue
+{
     struct QNode *front, *rear;
 };
 
 // A utility function to create a new linked list node.
-struct QNode *newNode(void *k) {
-    struct QNode *temp = (struct QNode *) malloc(sizeof(struct QNode));
+struct QNode *newNode(void *k)
+{
+    struct QNode *temp = (struct QNode *)malloc(sizeof(struct QNode));
     temp->key = k;
     temp->next = NULL;
     return temp;
 }
 
 // A utility function to create an empty queue
-struct Queue *createQ() {
-    struct Queue *q = (struct Queue *) malloc(sizeof(struct Queue));
+struct Queue *createQ()
+{
+    struct Queue *q = (struct Queue *)malloc(sizeof(struct Queue));
     q->front = q->rear = NULL;
     return q;
 }
 
 // The function to add a key k to q
-void enQ(struct Queue *q, void *k) {
+void enQ(struct Queue *q, void *k)
+{
     // Create a new LL node
     struct QNode *temp = newNode(k);
 
     // If queue is empty, then new node is front and rear both
-    if (q->rear == NULL) {
+    if (q->rear == NULL)
+    {
         q->front = q->rear = temp;
         pthread_cond_signal(&cond1);
         return;
@@ -60,9 +66,11 @@ void enQ(struct Queue *q, void *k) {
 }
 
 // Function to remove a key from given queue q
-void deQ(struct Queue *q) {
+void* deQ(struct Queue *q)
+{
     pthread_mutex_lock(&lock);
-    if (q->front == NULL) {
+    if (q->front == NULL)
+    {
 
         // let's wait on condition variable cond1
         printf("Waiting on condition variable cond1\n");
@@ -77,55 +85,76 @@ void deQ(struct Queue *q) {
     if (q->front == NULL)
         q->rear = NULL;
 
-    free(temp);
+    return temp;
     pthread_mutex_unlock(&lock);
 }
 
-void destoryQ(struct Queue *q) {
-    while (q->front != NULL) {
+void destoryQ(struct Queue *q)
+{
+    while (q->front != NULL)
+    {
         deQ(q);
     }
     free(q);
 }
 
-typedef struct active_object {
+// ************** active_object *************
+
+typedef struct active_object
+{
     struct Queue *q;
+    void *(*q_fun_ptr)(void *);
+    void *(*f_fun_ptr)(void *);
+    pthread_t *p;
+    int running;
+} active_object, *pactive_object;
+pactive_object newAO(struct Queue *q, void *q_fun_ptr, void *f_fun_ptr);
+void crateAO()
+{
+    printf("runAO has been initialized! \n");
+    pactive_object ao = (pactive_object)newAO;
+    while (ao->running) { 
+            void* handled_now = ao->q_fun_ptr(deQ(ao->q));
+            void* result = ao->f_fun_ptr(handled_now);
+            
+            //what to do with the result.
+            printf("the result is here!: %d\n", *(int*)result);
+        }
 
-    void (*q_fun_ptr)(void*);
-
-    void (*f_fun_ptr)(void*);
-} active_object;
-
-active_object newAO(struct Queue *q, void (*q_fun_ptr)(void*), void (*f_fun_ptr)(void*)) {
-    active_object active_obj;
-    active_obj.f_fun_ptr = f_fun_ptr;
-    active_obj.q_fun_ptr = q_fun_ptr;
-    active_obj.q = q;
-    struct QNode *n = q->front;
-    while (n != NULL) {
-        q_fun_ptr();
-        n = n->next;
-    }
-    f_fun_ptr();
-    return active_obj;
+    free(ao->p);
+    free(ao);
+    printf("active object terminated!\n");
+    //pthread_cancel(*ao->pid);
+}
+pactive_object newAO(struct Queue *q, void *q_fun_ptr, void *f_fun_ptr)
+{
+    pactive_object pactive_obj = (pactive_object)(malloc(sizeof(active_object)));
+    pactive_obj->f_fun_ptr = f_fun_ptr;
+    pactive_obj->q_fun_ptr = q_fun_ptr;
+    pactive_obj->q = q;
+    pactive_obj->running = 1;
+    pactive_obj->p = (pthread_t *)(malloc(sizeof(pthread_t)));
+    pthread_create(pactive_obj->p, NULL, crateAO, (void *)(pactive_obj));
+    return pactive_obj;
+}
+void destroyAO(pactive_object pactive_obj)
+{
+    pactive_obj->running = 0;
+    destoryQ(pactive_obj->q);
 }
 
-void destroyAO(active_object obj,){
-    destoryQ(obj.q);
-    pthread_cancel(obj.q_fun_ptr);
-    pthread_cancel(obj.f_fun_ptr);
-    printf("destroy AO finished!!\n");
-}
-
-void fun1() {
+void fun1()
+{
     printf("Hell World!\n");
 }
 
-void fun2() {
+void fun2()
+{
     printf("Ciiiiii!\n");
 }
 
-void ao1(char *str){
+void ao1(char *str)
+{
     int len = strlen(str);
     for (int i = 0; i < len; i++)
     {
@@ -133,31 +162,34 @@ void ao1(char *str){
         {
             str[i] = 'a';
         }
-        else if (str[i] =='Z')
+        else if (str[i] == 'Z')
         {
             str[i] = 'A';
         }
-        else{
+        else
+        {
             str[i] += 1;
         }
     }
 }
-void ao2(char *str){
+void ao2(char *str)
+{
     int len = strlen(str);
     for (int i = 0; i < len; i++)
     {
-        if (65 <= str[i] && str[i] <=90)
+        if (65 <= str[i] && str[i] <= 90)
         {
             str[i] += 32;
         }
-        else{
+        else
+        {
             str[i] -= 32;
         }
-
     }
 }
 
-int main() {
+int main()
+{
     struct Queue *q = createQ();
 
     pthread_t tid1, tid2;
@@ -175,14 +207,12 @@ int main() {
 
     // wait for the completion of thread 2
     pthread_join(tid2, NULL);
-//    printf("Queue Rear : %d\n", q->rear->key);
+    //    printf("Queue Rear : %d\n", q->rear->key);
     enQ(q, 5);
     enQ(q, 10);
     enQ(q, 17);
-    active_object obj = newAO(q, &fun1, &fun2);
+    pactive_object obj = newAO(q, &fun1, &fun2);
     destroyAO(obj);
-
-
 
     return 0;
 }
