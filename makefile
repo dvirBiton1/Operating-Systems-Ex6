@@ -34,4 +34,4 @@ server.o: server.c
 client.o: client.c
 	gcc -c client.c
 clean :
-	rm -f *.o main1 guard reactor singleton
+	rm -f *.o main1 guard reactor singleton pollserver clientReactor

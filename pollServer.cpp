@@ -123,17 +123,17 @@ void *myThread(void *arg)
         if (bytes <= 0)
         {
             printf("pollserver: socket %d disconnected\n", new_fd);
-            close(new_fd); // cya next time..
+            close(new_fd);
             return NULL;
         }
         else
         {
-            for (int i = 0; i < fd_count; i++) // send to any available client the msg
+            for (int i = 0; i < fd_count; i++)
             {
-                int dest_fd = pfds[i].fd;                     // get the current fd
-                if (dest_fd != listener && dest_fd != new_fd) // not gonna send to server and to the currenct clinet(the sender client)
+                int client_fd = pfds[i].fd;                    
+                if (client_fd != listener && client_fd != new_fd)
                 {
-                    send(dest_fd, buf, bytes, 0);
+                    send(client_fd, buf, bytes, 0);
                 }
             }
         }
