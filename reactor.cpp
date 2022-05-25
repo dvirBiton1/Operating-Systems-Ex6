@@ -1,7 +1,6 @@
 
 #include "reactor.hpp"
 
-
 // typedef struct reactor
 // {
 //     int fd;
@@ -14,10 +13,12 @@
 //     preactor p_reactor;
 // }reqests, *preqests;
 
+
 preactor newReactor(){
     preactor r = (preactor)(malloc(sizeof(reactor)));
     return r;
 }
+
 void InstallHandler(preactor p_reactor, void*(func)(void*), int file_des){
     p_reactor->func = func;
     p_reactor->fd = file_des;

@@ -12,7 +12,7 @@
 #define SERVER_PORT 9034
 #define SERVER_IP_ADDRESS "127.0.0.1"
 
-static int connect_flag = 0;
+int connect_flag = 0;
 int sock = -1;
 
 void *recvFunc(void *arg)
@@ -40,7 +40,6 @@ void *recvFunc(void *arg)
 
 void *sendFunc(void *arg)
 {
-    /* this func shall send the user input to the server */
     char input[1024] = {0};
     while (connect_flag != 0)
     {
@@ -63,6 +62,7 @@ void *sendFunc(void *arg)
 
 int main(int argc, char **argv)
 {
+    printf("New client\n");
     // create socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 
     // connect to a server
     int clientSocket = connect(sock, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
-    if (clientSocket == -1) // fail => end of experiment
+    if (clientSocket == -1)
     {
         printf("listen failed");
         close(sock);
@@ -90,7 +90,6 @@ int main(int argc, char **argv)
     }
 
     pthread_t pair_threads[2];
-    printf("new client\n");
     connect_flag = 1;
     pthread_create(&pair_threads[0], NULL, recvFunc, NULL);
     pthread_create(&pair_threads[1], NULL, sendFunc, NULL);
@@ -98,7 +97,7 @@ int main(int argc, char **argv)
     pthread_join(pair_threads[1], NULL);
     pthread_kill(pair_threads[1], 0);
 
-    close(sock); // close socket
-    printf("socket has been closed, the programme is done\n");
+    close(sock);
+    printf("The client send 'exit' and turn off\n");
     return 0;
 }

@@ -1,0 +1,6 @@
+*.o
+pollServer
+clientReactor
+main1
+guard
+singleton
