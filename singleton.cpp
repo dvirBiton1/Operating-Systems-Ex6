@@ -34,8 +34,8 @@ Singleton<T> *Singleton<T>::Instance(T temp) {
 }
 template<typename T>
 Singleton<T>::Singleton(T temp) {
-my_t = temp;
 mtx.lock();
+my_t = temp;
 }
 template<typename T>
 void Singleton<T>::Destroy() {
