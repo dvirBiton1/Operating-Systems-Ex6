@@ -20,6 +20,8 @@ static int sock = -1;
 pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
 // declaring mutex
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t lock2 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t lock3 = PTHREAD_MUTEX_INITIALIZER;
 struct Queue *createQ();
 
 static struct Queue *q;
@@ -43,12 +45,13 @@ struct Queue
 // A utility function to create a new linked list node.
 struct QNode *newNode(void *k)
 {
+    // pthread_mutex_lock(&lock);
     struct QNode *temp = (struct QNode *)malloc(sizeof(struct QNode));
-
     temp->key = (void*)malloc(sizeof(k));
     strcpy(temp->key,k);
     // temp->key = k;
     temp->next = NULL;
+    // pthread_mutex_unlock(&lock);
     return temp;
 }
 
@@ -70,17 +73,19 @@ void enQ(struct Queue *q, void *k)
     // If queue is empty, then new node is front and rear both
     if (q->rear == NULL)
     {
+        
         q->front = q->rear = temp;
         pthread_cond_signal(&cond1);
         pthread_mutex_unlock(&lock);
         return;
     }
-
     // Add the new node at the end of queue and change rear
     q->rear->next = temp;
     q->rear = temp;
+    
     pthread_mutex_unlock(&lock);
 }
+
 
 // Function to remove a key from given queue q
 void *deQ(struct Queue *q)
@@ -113,55 +118,6 @@ void destoryQ(struct Queue *q)
     }
     free(q);
 }
-
-// static struct Queue *my_q;
-// void *server_me
-//     my_q = (struct Queue *) q;
-//     int sock = socket(AF_INET, SOCK_STREAM, 0);
-//
-//     if (sock == -1) {
-//         printf("Could not create socket : %d", sock);
-//         return -1;
-//     }
-//
-//     // create socket
-//     struct sockaddr_in serverAddress;
-//     memset(&serverAddress, 0, sizeof(serverAddress));
-//
-//     serverAddress.sin_family = AF_INET;
-//     serverAddress.sin_port = htons(5009);
-//     if (bind(sock, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
-//         printf("Bind sock %d failed\n", sock);
-//         close(sock);
-//         return -1;
-//     }
-//
-//     listen(sock, 100); // can listen to 100 clients in parallel
-//     printf("ready to serv..\n");
-//
-//     pthread_t handle_recive;
-//     char flag[1];
-//     flag[0]= 'a';
-//     pthread_create(&handle_recive, NULL, thread_server_user_recv, flag);
-//
-//     while (flag[0] != '\0') {
-//         struct sockaddr_storage their_addr; // connector's address information
-//         socklen_t sin_size = sizeof(their_addr);
-//         int new_fd = accept(sock, (struct sockaddr *) &their_addr, &sin_size); // waiting to new client to connect
-//
-//         if (new_fd != -1) {
-//             pthread_t temp;
-//             printf("client connected with fd %d\n", new_fd);
-//
-//             pthread_create(&temp, NULL, thread_client_run, &new_fd);
-//             vec_client_threads.push_back(temp); // add to vector of all clients
-//         }
-//     }
-//     for (pthread_t t: vec_client_threads) {
-//         pthread_join(t, NULL);
-//     }
-//     return NULL;
-// }
 
 typedef struct active_object
 {
@@ -277,21 +233,24 @@ void *q_transpose1(void *arg)
 {
     
     struct QNode *n = (struct QNode*) arg;
-    printf("in func trans1: %s\n", (char*)n->key);
+    // printf("in func trans1: %s\n", (char*)n->key);
     int len = strlen(n->key);
     char str[len];
     strcpy(str,n->key);
     // printf("in func: %s\n", str);
     enQ(q2,str);
 }
+
 void *q_transpose2(void *arg)
 {
     struct QNode *n = (struct QNode*) arg;
-    printf("in func trans2: %s\n", (char*)n->key);
+    // printf("in func trans2: %s\n", (char*)n->key);
     int len = strlen(n->key);
     char str[len];
     strcpy(str,n->key);
     // printf("in func: %s\n", str);
+    print_queue(q3);
+    // printf("i === %d\n", i++);
     enQ(q3,str);
 }
 
@@ -356,16 +315,16 @@ int main()
     pthread_t a_1, a_2, a_3;
     print_queue(q);
     pthread_create(&a_1, NULL, newAO_th, pipline1->first);
-    sleep(5);
+    usleep(200);
     // printf("q2\n");
     print_queue(q2);
 
     printf("******active object2:*********\n");
     pthread_create(&a_2, NULL, newAO_th, pipline1->second);
-    sleep(5);
+    usleep(200);
     // pthread_join(a_1, NULL);
     // pthread_join(a_2, NULL);
-    print_queue(q3);
+    // print_queue(q3);
     // printf("%ld",pipline1->first);
     //    printf("Ciiiii");
     //    print_queue(q2);
