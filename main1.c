@@ -181,14 +181,12 @@ void newAO(struct Queue *q, void* (*q_fun_ptr)(void *), void* (*f_fun_ptr)(void 
     while (1)
     {
         struct QNode *n = (struct QNode *)deQ(q);
-        // printf("%s ", (char*) n->key);
         q_fun_ptr(n);
-        printf("in q : ");
-        print_queue(q);
-        // printf("%s ++\n", (char*)n->key);
+        // printf("in q : ");
+        // print_queue(q2);
         f_fun_ptr(n);
-        printf("in q2 : ");
-        print_queue(q2);
+        // printf("in q2 : ");
+        // print_queue(q3);
     }
 }
 
@@ -224,29 +222,14 @@ void fun2()
 {
     printf("Ciiiiii!\n");
 }
-// void* ao1(void* a)
-// { /* forward all chars+1 */
-//     struct QNode * n = (struct QNode *)a;
-//     char* str = (char*)n->key;
-//     for (int i=0; i < strlen(str); i++)
-//     {
-//         if (str[i] - 'Z' == 0){str[i] = 'A';} // 'Z' -> 'A'
-//         else if(str[i] - 'z' == 0){str[i] = 'a';} // 'z' -> 'a'
-//         else {str[i]++;}
-//     }
-//     printf("was in cypther\n");
-//     n->key = str;
-//     return NULL;
-// }
 
 void *ao1(void* arg)
 {
     struct QNode *n = (struct QNode*) arg;
     int len = strlen(n->key);
     char* str = malloc(sizeof(n->key));
-    
     str = n->key;
-    printf("in func: %s\n", str);
+    // printf("in func ao1: %s\n", str);
     for (int i = 0; i < len; i++)
     {
         if (str[i] == 'z')
@@ -263,16 +246,17 @@ void *ao1(void* arg)
         }
     }
     n->key = str;
-    printf("after func: %s\n", (char*)n->key);
+    // printf("after func ao1: %s\n", (char*)n->key);
     return NULL;
 }
 
 void *ao2(void *arg)
 {
-    struct QNode *n = (struct QNode*) arg;
+     struct QNode *n = (struct QNode*) arg;
     int len = strlen(n->key);
-    char str[len];
-    strcpy(str,n->key);
+    char* str = malloc(sizeof(n->key));
+    str = n->key;
+    // printf("in func ao2: %s\n", str);
     for (int i = 0; i < len; i++)
     {
         if (65 <= str[i] && str[i] <= 90)
@@ -285,6 +269,7 @@ void *ao2(void *arg)
         }
     }
     n->key = str;
+    // printf("after func ao2: %s\n", (char*)n->key);
     return NULL;
 }
 
@@ -292,17 +277,22 @@ void *q_transpose1(void *arg)
 {
     
     struct QNode *n = (struct QNode*) arg;
-    printf("in func trans: %s\n", (char*)n->key);
+    printf("in func trans1: %s\n", (char*)n->key);
     int len = strlen(n->key);
     char str[len];
     strcpy(str,n->key);
     // printf("in func: %s\n", str);
     enQ(q2,str);
 }
-void *q_transpose2(struct QNode *n)
+void *q_transpose2(void *arg)
 {
-    enQ(q3, n);
-    return NULL;
+    struct QNode *n = (struct QNode*) arg;
+    printf("in func trans2: %s\n", (char*)n->key);
+    int len = strlen(n->key);
+    char str[len];
+    strcpy(str,n->key);
+    // printf("in func: %s\n", str);
+    enQ(q3,str);
 }
 
 void *print_node(struct QNode *n)
@@ -316,7 +306,7 @@ void print_queue(struct Queue *q)
     struct QNode *n = q->front;
     while (n != NULL)
     {
-        printf("%s   ,", (char *)n->key);
+        printf("%s ,", (char *)n->key);
         n = n->next;
     }
     printf("\n");
@@ -364,16 +354,18 @@ int main()
     pipline1->second = obj2;
     pipline1->third = obj3;
     pthread_t a_1, a_2, a_3;
-    // print_queue(q);
+    print_queue(q);
     pthread_create(&a_1, NULL, newAO_th, pipline1->first);
-    usleep(200);
+    sleep(5);
     // printf("q2\n");
-    // print_queue(q2);
-    // pthread_create(&a_2, NULL, newAO_th, pipline1->second);
-    
+    print_queue(q2);
+
+    printf("******active object2:*********\n");
+    pthread_create(&a_2, NULL, newAO_th, pipline1->second);
+    sleep(5);
     // pthread_join(a_1, NULL);
     // pthread_join(a_2, NULL);
-    // print_queue(q);
+    print_queue(q3);
     // printf("%ld",pipline1->first);
     //    printf("Ciiiii");
     //    print_queue(q2);
