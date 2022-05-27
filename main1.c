@@ -100,8 +100,10 @@ void *deQ(struct Queue *q)
     }
     // Store previous front and move front one node ahead
     struct QNode *temp = q->front;
-
-    q->front = q->front->next;
+    if (q->front)
+    {
+        q->front = q->front->next;
+    }
 
     // If front becomes NULL, then change rear also as NULL
     if (q->front == NULL)
@@ -181,6 +183,10 @@ void fun2()
 
 void *ao1(void* arg)
 {
+    if (!arg)
+    {
+        return;
+    }
     struct QNode *n = (struct QNode*) arg;
     int len = strlen(n->key);
     char* str = malloc(sizeof(n->key));
@@ -208,6 +214,10 @@ void *ao1(void* arg)
 
 void *ao2(void *arg)
 {
+    if (!arg)
+    {
+        return;
+    }
      struct QNode *n = (struct QNode*) arg;
     int len = strlen(n->key);
     char* str = malloc(sizeof(n->key));
@@ -231,6 +241,10 @@ void *ao2(void *arg)
 
 void *q_transpose1(void *arg)
 {
+    if (!arg)
+    {
+        return;
+    }
     
     struct QNode *n = (struct QNode*) arg;
     // printf("in func trans1: %s\n", (char*)n->key);
@@ -243,13 +257,17 @@ void *q_transpose1(void *arg)
 
 void *q_transpose2(void *arg)
 {
+    if (!arg)
+    {
+        return;
+    }
     struct QNode *n = (struct QNode*) arg;
     // printf("in func trans2: %s\n", (char*)n->key);
     int len = strlen(n->key);
     char str[len];
     strcpy(str,n->key);
     // printf("in func: %s\n", str);
-    print_queue(q3);
+    // print_queue(q3);
     // printf("i === %d\n", i++);
     enQ(q3,str);
 }
@@ -262,6 +280,11 @@ void *print_node(struct QNode *n)
 
 void print_queue(struct Queue *q)
 {
+    if (!q)
+    {
+        return;
+    }
+    
     struct QNode *n = q->front;
     while (n != NULL)
     {
@@ -276,22 +299,6 @@ int main()
     q = createQ();
     q2 = createQ();
     q3 = createQ();
-    // pthread_t tid1, tid2;
-    // int x = 5;
-    // void *param[2] = {q, &x};
-    // // Create thread 1
-    // pthread_create(&tid1, NULL, deQ, q);
-
-    // sleep for 1 sec so that thread 1
-    // would get a chance to run first
-    // sleep(1);
-
-    // Create thread 2
-    // pthread_create(&tid2, NULL, enQ, param);
-
-    // wait for the completion of thread 2
-    // pthread_join(tid2, NULL);
-    //    printf("Queue Rear : %d\n", q->rear->key);
     enQ(q, "ohad");
     enQ(q, "dvir");
     enQ(q, "yossi");
@@ -313,18 +320,18 @@ int main()
     pipline1->second = obj2;
     pipline1->third = obj3;
     pthread_t a_1, a_2, a_3;
+    printf("q1: \n");
     print_queue(q);
     pthread_create(&a_1, NULL, newAO_th, pipline1->first);
     usleep(200);
-    // printf("q2\n");
+    printf("q2: \n");
     print_queue(q2);
 
     printf("******active object2:*********\n");
     pthread_create(&a_2, NULL, newAO_th, pipline1->second);
     usleep(200);
-    // pthread_join(a_1, NULL);
-    // pthread_join(a_2, NULL);
-    // print_queue(q3);
+    printf("q3: \n");
+    print_queue(q3);
     // printf("%ld",pipline1->first);
     //    printf("Ciiiii");
     //    print_queue(q2);

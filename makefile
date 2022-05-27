@@ -5,7 +5,7 @@ CPP=g++
 all: main1 #pollServer clientReactor #main1 #guard singleton pollServer clientReactor #server client
 	./main1
 main1: main1.o
-	$(CXX) main1.o -o main1 -lpthread
+	$(CXX) -g main1.o -o main1 -lpthread
 main1.o: main1.c
 	$(CXX) -c main1.c
 guard: guard.o
