@@ -331,7 +331,7 @@ void *ao2(void *arg)
     {
         if (65 <= str[i] && str[i] <= 90)
         {
-            str[i] += 32;
+            continue;
         }
         else
         {
