@@ -1,5 +1,15 @@
 make --dry-run --keep-going --print-directory
 make: Entering directory '/home/dvir1234/operating-systems/Ex6'
-make: Nothing to be done for 'all'.
+gcc -c main1.c
+gcc main1.o -o main1 -lpthread
+gcc -c ao_client.c
+gcc ao_client.o -o ao_client -lpthread
+g++ -c singleton.cpp
+g++ singleton.o -o singleton
+ 
+make: *** No rule to make target 'test_ao_client.c', needed by 'test_ao_client.o'.
+
+g++ -c guard.cpp
+g++ guard.o -o guard -lpthread
 make: Leaving directory '/home/dvir1234/operating-systems/Ex6'
  
